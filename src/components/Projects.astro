@@ -5,6 +5,7 @@ type Project = {
   subtitle: string;
   description: string;
   tags: string[];
+  category: string;
   accentColor: string;
   glowColor: string;
   status: 'Live' | 'WIP' | 'Open Source';
@@ -22,6 +23,7 @@ const projects: Project[] = [
     description:
       'Una libreria interattiva di componenti UI e animazioni avanzate. Ogni componente è costruito con attenzione maniacale ai dettagli: micro-interazioni, transizioni fluide e pattern CSS creativi. Un campo di gioco per esplorare i limiti del web moderno.',
     tags: ['React', 'TypeScript', 'CSS Animations', 'Tailwind CSS', 'Framer Motion'],
+    category: 'Web App',
     accentColor: '#7C3AED',
     glowColor: 'rgba(124,58,237,0.35)',
     status: 'Live',
@@ -38,6 +40,7 @@ const projects: Project[] = [
     description:
       'Web app che adatta il tuo CV e genera una cover letter personalizzata per ogni job posting. Carica il tuo profilo una volta, poi passa un URL o testo dell\'offerta e ottieni documenti ATS-ready in secondi — zero invenzioni, solo riformulazione intelligente del tuo materiale reale.',
     tags: ['Next.js 15', 'TypeScript', 'Supabase', 'Claude API', 'Tailwind CSS'],
+    category: 'AI',
     accentColor: '#10B981',
     glowColor: 'rgba(16,185,129,0.3)',
     status: 'WIP',
@@ -54,6 +57,7 @@ const projects: Project[] = [
     description:
       'Collezione di mini-game giocabili direttamente nel browser, costruiti con CSS-first techniques. Niente canvas, niente librerie. Memory Glitch è il primo — altri in arrivo.',
     tags: ['CSS 3D', 'Vanilla JS', 'HTML', 'Animations'],
+    category: 'Game',
     accentColor: '#06B6D4',
     glowColor: 'rgba(6,182,212,0.3)',
     status: 'Live',
@@ -70,6 +74,7 @@ const projects: Project[] = [
     description:
       'Roguelite 2D in Godot 4 dove ogni run ti permette di "hackerare" la realtà equipaggiando Snippet di codice come abilità. Sistema procedurale di stanze, instabilità crescente, meta-game di upgrade tra le run. In sviluppo attivo.',
     tags: ['Godot 4.3', 'GDScript', 'Roguelite', 'Procedural Gen'],
+    category: 'Game',
     accentColor: '#E879F9',
     glowColor: 'rgba(232,121,249,0.3)',
     status: 'WIP',
@@ -79,12 +84,13 @@ const projects: Project[] = [
       'background:linear-gradient(135deg,rgba(232,121,249,0.18) 0%,rgba(124,58,237,0.1) 100%)',
   },
   {
-    id: 4,
+    id: 5,
     title: 'Vue Design System',
     subtitle: 'Scalable component library',
     description:
       'Design system scalabile con oltre 50 componenti documentati, varianti tematiche e integrazione Storybook. Pubblicato come pacchetto npm.',
     tags: ['Vue 3', 'TypeScript', 'Storybook', 'SCSS', 'Vite'],
+    category: 'Design System',
     accentColor: '#F59E0B',
     glowColor: 'rgba(245,158,11,0.3)',
     status: 'Open Source',
@@ -101,6 +107,8 @@ const statusColors: Record<string, string> = {
   'WIP': 'bg-amber-400/15 text-amber-400 border-amber-400/30',
   'Open Source': 'bg-cyan-400/15 text-cyan-400 border-cyan-400/30',
 };
+
+const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
 ---
 
 <section id="projects" class="relative py-32 px-6 overflow-hidden">
@@ -112,7 +120,7 @@ const statusColors: Record<string, string> = {
   <div class="max-w-6xl mx-auto">
 
     <!-- Header -->
-    <div class="reveal text-center mb-16">
+    <div class="reveal text-center mb-10">
       <span class="section-badge mb-4 inline-flex">// selected_works</span>
       <h2 class="text-4xl sm:text-5xl font-black text-white mt-4">
         Progetti <span class="text-gradient">selezionati</span>
@@ -122,163 +130,139 @@ const statusColors: Record<string, string> = {
       </p>
     </div>
 
-    <!-- Projects layout -->
-    <div class="space-y-8">
+    <!-- Filter tabs -->
+    <div class="reveal flex flex-wrap justify-center gap-2 mb-12" id="filter-bar">
+      {categories.map(cat => (
+        <button
+          data-filter={cat}
+          class={`filter-btn font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 ${cat === 'All' ? 'filter-active' : ''}`}
+        >
+          {cat}
+          <span class="filter-count ml-1.5 opacity-50">
+            {cat === 'All' ? projects.length : projects.filter(p => p.category === cat).length}
+          </span>
+        </button>
+      ))}
+    </div>
 
-      {/* ── Featured project (full-width) ── */}
-      {projects.filter(p => p.featured).map(p => (
-        <div class="reveal card-tilt">
-          <div
-            class="gradient-border rounded-2xl overflow-hidden"
-            style={`--accent:${p.accentColor};`}
-          >
-            <div class="grid lg:grid-cols-2 gap-0 min-h-[420px]">
+    <!-- Projects grid -->
+    <div class="projects-grid" id="projects-grid">
 
-              <!-- Mockup panel -->
-              <div
-                class="relative flex items-center justify-center p-10 min-h-[260px] lg:min-h-auto"
-                style={p.mockupStyle}
-              >
-                <!-- Browser mockup -->
-                <div class="w-full max-w-sm glass rounded-xl overflow-hidden shadow-2xl"
-                     style={`box-shadow: 0 20px 60px ${p.glowColor};`}>
-                  <div class="px-3 py-2 flex items-center gap-1.5 border-b border-white/5"
-                       style="background:rgba(255,255,255,0.03);">
-                    <span class="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-yellow-400/70"></span>
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-400/70"></span>
-                    <span class="flex-1 ml-2 h-4 rounded bg-white/5 text-[9px] font-mono text-white/25 flex items-center px-2">
-                      ui-playground.dev
-                    </span>
+      {projects.map((p) => (
+        <div
+          class={`project-card reveal card-tilt ${p.featured ? 'project-featured' : ''}`}
+          data-category={p.category}
+        >
+          {p.featured ? (
+            /* ── Featured card (full-width) ── */
+            <div class="gradient-border rounded-2xl overflow-hidden h-full" style={`--accent:${p.accentColor};`}>
+              <div class="grid lg:grid-cols-2 gap-0 min-h-[420px]">
+                <!-- Mockup panel -->
+                <div class="relative flex items-center justify-center p-10 min-h-[260px] lg:min-h-auto" style={p.mockupStyle}>
+                  <div class="w-full max-w-sm glass rounded-xl overflow-hidden shadow-2xl" style={`box-shadow:0 20px 60px ${p.glowColor};`}>
+                    <div class="px-3 py-2 flex items-center gap-1.5 border-b border-white/5" style="background:rgba(255,255,255,0.03);">
+                      <span class="w-2.5 h-2.5 rounded-full bg-red-400/70"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-yellow-400/70"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-green-400/70"></span>
+                      <span class="flex-1 ml-2 h-4 rounded bg-white/5 text-[9px] font-mono text-white/25 flex items-center px-2">ui-playground.dev</span>
+                    </div>
+                    <div class="p-4 space-y-3">
+                      <div class="flex gap-2">
+                        <div class="h-8 w-16 rounded-lg" style={`background:${p.accentColor}40;border:1px solid ${p.accentColor}50;`}></div>
+                        <div class="h-8 flex-1 rounded-lg bg-white/5"></div>
+                      </div>
+                      <div class="grid grid-cols-3 gap-2">
+                        {[p.accentColor, '#06B6D4', '#F59E0B'].map(c => (
+                          <div class="h-16 rounded-lg animate-pulse-slow" style={`background:${c}20;border:1px solid ${c}30;`}></div>
+                        ))}
+                      </div>
+                      <div class="space-y-1.5">
+                        {[70, 90, 55].map(w => (
+                          <div class="h-2 rounded-full bg-white/5" style={`width:${w}%`}></div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div class="p-4 space-y-3">
-                    <div class="flex gap-2">
-                      <div class="h-8 w-16 rounded-lg" style={`background:${p.accentColor}40;border:1px solid ${p.accentColor}50;`}></div>
-                      <div class="h-8 flex-1 rounded-lg bg-white/5"></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                      {[p.accentColor, '#06B6D4', '#F59E0B'].map(c => (
-                        <div class="h-16 rounded-lg animate-pulse-slow"
-                             style={`background:${c}20;border:1px solid ${c}30;`}></div>
-                      ))}
-                    </div>
-                    <div class="space-y-1.5">
-                      {[70, 90, 55].map(w => (
-                        <div class="h-2 rounded-full bg-white/5" style={`width:${w}%`}></div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-              </div>
-
-              <!-- Info panel -->
-              <div class="flex flex-col justify-center p-8 lg:p-12">
-                <div class="flex items-center gap-3 mb-4">
-                  <span class={`text-xs font-mono font-semibold px-2.5 py-1 rounded-full border ${statusColors[p.status]}`}>
-                    {p.status === 'Live' && '● '}
-                    {p.status}
-                  </span>
-                  <span class="text-xs text-white/25 font-mono">Featured</span>
-                </div>
-
-                <h3 class="text-3xl sm:text-4xl font-black text-white mb-2">{p.title}</h3>
-                <p class="font-mono text-sm mb-4" style={`color:${p.accentColor};`}>{p.subtitle}</p>
-
-                <p class="text-white/55 text-sm leading-relaxed mb-6">{p.description}</p>
-
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-2 mb-8">
-                  {p.tags.map(tag => (
-                    <span class="text-xs font-mono px-2.5 py-1 rounded-full glass" style={`border-color:${p.accentColor}30;color:${p.accentColor}cc;`}>
-                      {tag}
+                <!-- Info panel -->
+                <div class="flex flex-col justify-center p-8 lg:p-12">
+                  <div class="flex items-center gap-3 mb-4">
+                    <span class={`text-xs font-mono font-semibold px-2.5 py-1 rounded-full border ${statusColors[p.status]}`}>
+                      {p.status === 'Live' && '● '}{p.status}
                     </span>
-                  ))}
-                </div>
-
-                <!-- Links -->
-                <div class="flex gap-3">
-                  <a href={p.demoUrl} class="btn-primary text-sm py-2.5 px-5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                    Live Demo
-                  </a>
-                  <a href={p.codeUrl} class="btn-secondary text-sm py-2.5 px-5">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    Codice
-                  </a>
+                    <span class="text-xs text-white/25 font-mono">Featured</span>
+                  </div>
+                  <h3 class="text-3xl sm:text-4xl font-black text-white mb-2">{p.title}</h3>
+                  <p class="font-mono text-sm mb-4" style={`color:${p.accentColor};`}>{p.subtitle}</p>
+                  <p class="text-white/55 text-sm leading-relaxed mb-6">{p.description}</p>
+                  <div class="flex flex-wrap gap-2 mb-8">
+                    {p.tags.map(tag => (
+                      <span class="text-xs font-mono px-2.5 py-1 rounded-full glass" style={`border-color:${p.accentColor}30;color:${p.accentColor}cc;`}>{tag}</span>
+                    ))}
+                  </div>
+                  <div class="flex gap-3">
+                    {p.demoUrl && p.demoUrl !== '#' && (
+                      <a href={p.demoUrl} target="_blank" rel="noopener noreferrer" class="btn-primary text-sm py-2.5 px-5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        Live Demo
+                      </a>
+                    )}
+                    {p.codeUrl && p.codeUrl !== '#' && (
+                      <a href={p.codeUrl} target="_blank" rel="noopener noreferrer" class="btn-secondary text-sm py-2.5 px-5">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        Codice
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      ))}
-
-      {/* ── Other projects (2-col grid) ── */}
-      <div class="grid sm:grid-cols-2 gap-8">
-        {projects.filter(p => !p.featured).map((p, i) => (
-          <div class={`reveal reveal-delay-${i + 2} card-tilt`}>
-            <div
-              class="glass glass-hover rounded-2xl overflow-hidden h-full flex flex-col"
-              style={`border-color:${p.accentColor}20;`}
-            >
-              <!-- Mockup thumbnail -->
-              <div
-                class="h-44 relative flex items-center justify-center p-6"
-                style={p.mockupStyle}
-              >
+          ) : (
+            /* ── Regular card ── */
+            <div class="glass glass-hover rounded-2xl overflow-hidden h-full flex flex-col" style={`border-color:${p.accentColor}20;`}>
+              <div class="h-44 relative flex items-center justify-center p-6" style={p.mockupStyle}>
                 <div class="grid grid-cols-3 gap-2 w-full max-w-[200px]">
                   {[p.accentColor, '#fff', '#06B6D4'].map(c => (
-                    <div class="h-10 rounded-lg animate-pulse-slow"
-                         style={`background:${c}25;border:1px solid ${c}30;`}></div>
+                    <div class="h-10 rounded-lg animate-pulse-slow" style={`background:${c}25;border:1px solid ${c}30;`}></div>
                   ))}
-                  <div class="h-10 col-span-2 rounded-lg animate-pulse-slow"
-                       style={`background:${p.accentColor}15;border:1px solid ${p.accentColor}25;`}></div>
-                  <div class="h-10 rounded-lg" style={`background:rgba(255,255,255,0.04);`}></div>
+                  <div class="h-10 col-span-2 rounded-lg animate-pulse-slow" style={`background:${p.accentColor}15;border:1px solid ${p.accentColor}25;`}></div>
+                  <div class="h-10 rounded-lg" style="background:rgba(255,255,255,0.04);"></div>
                 </div>
               </div>
-
-              <!-- Content -->
               <div class="flex flex-col flex-1 p-6">
                 <div class="flex items-center justify-between mb-3">
-                  <span class={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full border ${statusColors[p.status]}`}>
-                    {p.status}
-                  </span>
+                  <span class={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full border ${statusColors[p.status]}`}>{p.status}</span>
                   <span class="font-mono text-xs" style={`color:${p.accentColor};`}>{p.subtitle}</span>
                 </div>
-
                 <h3 class="text-xl font-bold text-white mb-2">{p.title}</h3>
                 <p class="text-white/50 text-sm leading-relaxed mb-4 flex-1">{p.description}</p>
-
                 <div class="flex flex-wrap gap-1.5 mb-5">
                   {p.tags.slice(0, 4).map(tag => (
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full"
-                          style={`background:${p.accentColor}15;color:${p.accentColor}bb;border:1px solid ${p.accentColor}25;`}>
-                      {tag}
-                    </span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full" style={`background:${p.accentColor}15;color:${p.accentColor}bb;border:1px solid ${p.accentColor}25;`}>{tag}</span>
                   ))}
                 </div>
-
                 <div class="flex gap-2">
                   {p.demoUrl && p.demoUrl !== '#' && (
-                    <a href={p.demoUrl} class="btn-primary text-xs py-2 px-4 flex-1 justify-center">Demo</a>
+                    <a href={p.demoUrl} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs py-2 px-4 flex-1 justify-center">Demo</a>
                   )}
                   {p.codeUrl && p.codeUrl !== '#' && (
                     <a href={p.codeUrl} target="_blank" rel="noopener noreferrer" class={`btn-secondary text-xs py-2 px-4 ${(!p.demoUrl || p.demoUrl === '#') ? 'flex-1 justify-center' : ''}`}>
-                      <svg class="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-                      </svg>
+                      <svg class="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
                       GitHub
                     </a>
                   )}
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        </div>
+      ))}
+
+      <!-- Empty state -->
+      <div id="projects-empty" class="col-span-full hidden text-center py-16">
+        <p class="text-white/30 font-mono text-sm">// no projects in this category yet</p>
       </div>
+
     </div>
 
     <!-- See more -->
@@ -295,5 +279,81 @@ const statusColors: Record<string, string> = {
         </svg>
       </a>
     </div>
+
   </div>
 </section>
+
+<style>
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .project-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .project-card.project-featured {
+    grid-column: 1 / -1;
+  }
+  .project-card.hidden-card {
+    display: none;
+  }
+
+  /* Filter buttons */
+  .filter-btn {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+  }
+  .filter-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.8);
+  }
+  .filter-btn.filter-active {
+    background: rgba(124,58,237,0.2);
+    border-color: rgba(124,58,237,0.5);
+    color: #fff;
+  }
+
+  @media (max-width: 640px) {
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+    .project-card.project-featured {
+      grid-column: 1;
+    }
+  }
+</style>
+
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('.project-card');
+  const emptyState = document.getElementById('projects-empty');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter ?? 'All';
+
+      // Update active button
+      filterBtns.forEach(b => b.classList.remove('filter-active'));
+      btn.classList.add('filter-active');
+
+      // Show/hide cards
+      let visible = 0;
+      cards.forEach(card => {
+        const match = filter === 'All' || card.dataset.category === filter;
+        card.classList.toggle('hidden-card', !match);
+
+        // Featured card loses full-width when filtered
+        if (card.classList.contains('project-featured')) {
+          card.classList.toggle('project-featured', filter === 'All');
+        }
+
+        if (match) visible++;
+      });
+
+      emptyState?.classList.toggle('hidden', visible > 0);
+    });
+  });
+</script>
